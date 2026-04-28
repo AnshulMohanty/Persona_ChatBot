@@ -17,7 +17,8 @@ const menuBtn = document.getElementById('menu-btn');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 const personaBtns = document.querySelectorAll('.persona-btn');
 
-const API_URL = '/api/chat';
+// const API_URL = '/api/chat';
+const API_URL = 'https://persona-chatbot-fak2.onrender.com/api/chat';
 
 function init() {
   renderWelcome();

@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const anshumanPrompt = require('./prompts/anshuman');
@@ -37,7 +36,6 @@ app.post('/api/chat', async (req, res) => {
     const systemPrompt = prompts[persona];
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    // build chat history from all messages except the latest one
     const chatHistory = messages.slice(0, -1).map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }]
@@ -71,12 +69,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// serve built frontend in production
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
-});
-
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

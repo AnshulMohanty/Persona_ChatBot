@@ -1,36 +1,44 @@
 import { personas } from './personas.js';
 
-// state
-let currentPersona = 'anshuman';
+let currentPersona = null;
 let conversationHistory = [];
 let isLoading = false;
 
-// dom elements
 const chatMessages = document.getElementById('chat-messages');
 const messageInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
-const headerAvatar = document.getElementById('header-avatar');
+const headerAvatarImg = document.getElementById('header-avatar-img');
 const headerName = document.getElementById('header-name');
 const headerRole = document.getElementById('header-role');
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menu-btn');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 const personaBtns = document.querySelectorAll('.persona-btn');
+const landingScreen = document.getElementById('landing-screen');
+const chatMain = document.getElementById('chat-main');
+const landingCards = document.querySelectorAll('.landing-persona-card');
 
-// const API_URL = '/api/chat';
-const API_URL = 'https://persona-chatbot-fak2.onrender.com/api/chat';
+// vite build ke time VITE_API_URL set karna, warna local proxy use hoga
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_URL = `${API_BASE}/api/chat`;
 
 function init() {
-  renderWelcome();
+  chatMain.style.display = 'none';
+  sidebar.style.display = 'none';
   bindEvents();
 }
 
 function bindEvents() {
+  landingCards.forEach(card => {
+    card.addEventListener('click', () => {
+      enterChat(card.dataset.persona);
+    });
+  });
+
   personaBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const persona = btn.dataset.persona;
-      if (persona === currentPersona) return;
-      switchPersona(persona);
+      if (btn.dataset.persona === currentPersona) return;
+      switchPersona(btn.dataset.persona);
     });
   });
 
@@ -45,12 +53,32 @@ function bindEvents() {
 
   messageInput.addEventListener('input', autoResize);
 
-  // mobile sidebar toggle
   menuBtn.addEventListener('click', () => {
     sidebar.classList.add('open');
     sidebarOverlay.classList.add('active');
   });
+
   sidebarOverlay.addEventListener('click', closeSidebar);
+}
+
+// landing se chat mein jaana
+function enterChat(personaId) {
+  currentPersona = personaId;
+  conversationHistory = [];
+
+  landingScreen.classList.add('hidden');
+  setTimeout(() => {
+    landingScreen.style.display = 'none';
+    sidebar.style.display = 'flex';
+    chatMain.style.display = 'flex';
+  }, 350);
+
+  personaBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.persona === personaId);
+  });
+
+  updateHeader(personaId);
+  renderWelcome();
 }
 
 function closeSidebar() {
@@ -62,20 +90,21 @@ function switchPersona(personaId) {
   currentPersona = personaId;
   conversationHistory = [];
 
-  // highlight active btn
   personaBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.persona === personaId);
   });
 
-  // update header with new persona info
-  const p = personas[personaId];
-  headerAvatar.textContent = p.initials;
-  headerAvatar.style.background = p.color;
-  headerName.textContent = p.name;
-  headerRole.textContent = p.role;
-
+  updateHeader(personaId);
   renderWelcome();
   closeSidebar();
+}
+
+function updateHeader(personaId) {
+  const p = personas[personaId];
+  headerAvatarImg.src = p.image;
+  headerAvatarImg.alt = p.name;
+  headerName.textContent = p.name;
+  headerRole.textContent = p.role;
 }
 
 function renderWelcome() {
@@ -83,7 +112,9 @@ function renderWelcome() {
 
   chatMessages.innerHTML = `
     <div class="welcome-message">
-      <div class="welcome-avatar" style="background:${p.color};">${p.initials}</div>
+      <div class="welcome-img-wrap">
+        <img src="${p.image}" alt="${p.name}">
+      </div>
       <div class="welcome-name">${p.name}</div>
       <div class="welcome-role">${p.role}</div>
       <div class="welcome-text">${p.welcome}</div>
@@ -93,7 +124,6 @@ function renderWelcome() {
     </div>
   `;
 
-  // clicking a chip sends it as a message
   document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       messageInput.value = chip.textContent;
@@ -106,7 +136,6 @@ async function handleSend() {
   const text = messageInput.value.trim();
   if (!text || isLoading) return;
 
-  // get rid of suggestion chips after first msg
   const chips = document.getElementById('suggestion-chips');
   if (chips) chips.remove();
 
@@ -153,11 +182,15 @@ function appendMessage(role, text, isError = false) {
   const div = document.createElement('div');
   div.className = `message ${role}`;
 
-  const avatarInitials = role === 'user' ? 'You' : p.initials;
-  const avatarBg = role === 'user' ? '' : `style="background:${p.color};"`;
+  let avatarHtml;
+  if (role === 'user') {
+    avatarHtml = `<div class="msg-avatar">You</div>`;
+  } else {
+    avatarHtml = `<div class="msg-avatar"><img src="${p.image}" alt="${p.name}"></div>`;
+  }
 
   div.innerHTML = `
-    <div class="msg-avatar" ${avatarBg}>${avatarInitials}</div>
+    ${avatarHtml}
     <div class="msg-bubble ${isError ? 'error-bubble' : ''}">${escapeHtml(text)}</div>
   `;
 
@@ -171,7 +204,7 @@ function showTypingIndicator() {
   div.className = 'typing-indicator';
   div.id = 'typing-indicator';
   div.innerHTML = `
-    <div class="msg-avatar" style="background:${p.color};">${p.initials}</div>
+    <div class="msg-avatar"><img src="${p.image}" alt="${p.name}"></div>
     <div class="typing-dots"><span></span><span></span><span></span></div>
   `;
   chatMessages.appendChild(div);

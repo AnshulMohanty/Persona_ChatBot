@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -13,7 +14,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// map persona names to their system prompts
+// production mein frontend build serve karna hai
+const distPath = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(distPath));
+
 const prompts = {
   anshuman: anshumanPrompt,
   abhimanyu: abhimanyuPrompt,
@@ -67,6 +71,11 @@ app.post('/api/chat', async (req, res) => {
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// SPA fallback — koi bhi unknown route pe index.html bhejo
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 app.listen(PORT, () => {

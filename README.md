@@ -2,13 +2,11 @@
 
 Chat with AI versions of three Scaler/InterviewBit personalities — **Anshuman Singh**, **Abhimanyu Saxena**, and **Kshitij Mishra**. Each persona has a carefully crafted system prompt with few-shot examples, chain-of-thought instructions, and output constraints.
 
-Built as a prompt engineering project for Scaler Academy.
-
-**Live Demo:** _[deployed link here]_
+**Live Demo:** [persona-chatbot-1-3bpy.onrender.com](https://persona-chatbot-1-3bpy.onrender.com/)
 
 ## Screenshots
 
-_[will add after deployment]_
+_Screenshots will be added here after final deployment._
 
 ## Tech Stack
 
@@ -21,6 +19,7 @@ _[will add after deployment]_
 ```
 frontend/
   index.html, style.css, main.js, personas.js
+  images/          — persona profile photos
   vite.config.js, package.json
 
 backend/
@@ -65,18 +64,24 @@ Open `http://localhost:3000` — Express serves both the API and the built front
 
 ## Deployment
 
-Deployed on **Render** as a single web service. The Express backend serves the Vite production build as static files, so everything runs on one URL.
+Deployed on **Render** with frontend and backend as separate services.
 
-To deploy yourself:
-1. Push to GitHub
-2. Create a new Web Service on [render.com](https://render.com)
-3. Set build command: `cd frontend && npm install && npm run build && cd ../backend && npm install`
-4. Set start command: `cd backend && node server.js`
-5. Add `GEMINI_API_KEY` as an environment variable in Render dashboard
+**Backend** — Web Service:
+- Build: `cd backend && npm install`
+- Start: `node server.js`
+- Env: `GEMINI_API_KEY`
+
+**Frontend** — Static Site:
+- Build: `cd frontend && npm install && npm run build`
+- Publish dir: `frontend/dist`
+- Env: `VITE_API_URL=https://your-backend-url.onrender.com`
+
+The `VITE_API_URL` environment variable tells the frontend where the backend is. Set it to your backend Render URL (without trailing slash).
 
 ## What It Does
 
 - Three distinct persona chatbots, each with their own system prompt
+- Landing page with persona selection — pick who you want to talk to
 - Switch between personas using the sidebar — chat resets on switch
 - Suggestion chips give you quick starter questions for each persona
 - Typing indicator shows while waiting for the API

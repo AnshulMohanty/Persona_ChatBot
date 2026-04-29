@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Chat with AI personas of Scaler's Anshuman Singh, Abhimanyu Saxena, and Kshitij Mishra">
-  <title>Scaler Personas</title>
+  <meta name="description" content="Persona Chatbot — chat with persona simulations of tech industry leaders">
+  <title>Persona Chatbot</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,28 +12,60 @@
 </head>
 <body>
   <div class="app" id="app">
+
+    <div class="landing-screen" id="landing-screen">
+      <div class="landing-content">
+        <h1 class="landing-title">Persona Chatbot</h1>
+        <p class="landing-tagline">Pick a persona, start a conversation. Each one responds in their own style.</p>
+        <div class="landing-personas" id="landing-personas">
+          <button class="landing-persona-card" data-persona="anshuman" id="land-anshuman">
+            <div class="lp-img-wrap">
+              <img src="images/anshuman.png" alt="Anshuman Singh" class="lp-img">
+            </div>
+            <span class="lp-name">Anshuman Singh</span>
+            <span class="lp-role">Co-founder</span>
+          </button>
+          <button class="landing-persona-card" data-persona="abhimanyu" id="land-abhimanyu">
+            <div class="lp-img-wrap">
+              <img src="images/abhimanyu.png" alt="Abhimanyu Saxena" class="lp-img">
+            </div>
+            <span class="lp-name">Abhimanyu Saxena</span>
+            <span class="lp-role">Co-founder</span>
+          </button>
+          <button class="landing-persona-card" data-persona="kshitij" id="land-kshitij">
+            <div class="lp-img-wrap">
+              <img src="images/kshitij.png" alt="Kshitij Mishra" class="lp-img">
+            </div>
+            <span class="lp-name">Kshitij Mishra</span>
+            <span class="lp-role">Head of Instructors</span>
+          </button>
+        </div>
+        <p class="landing-hint">Select a persona to begin chatting</p>
+      </div>
+    </div>
+
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <h1 class="logo">Scaler Personas</h1>
+        <h1 class="logo">Persona Chatbot</h1>
         <p class="logo-sub">Prompt Engineering Project</p>
       </div>
       <nav class="persona-nav">
-        <button class="persona-btn active" data-persona="anshuman" id="btn-anshuman">
-          <span class="persona-avatar" style="background:#2563eb;">AS</span>
+        <button class="persona-btn" data-persona="anshuman" id="btn-anshuman">
+          <img src="images/anshuman.png" alt="Anshuman Singh" class="persona-avatar-img">
           <div class="persona-info">
             <span class="persona-name">Anshuman Singh</span>
             <span class="persona-role">Co-founder</span>
           </div>
         </button>
         <button class="persona-btn" data-persona="abhimanyu" id="btn-abhimanyu">
-          <span class="persona-avatar" style="background:#059669;">AX</span>
+          <img src="images/abhimanyu.png" alt="Abhimanyu Saxena" class="persona-avatar-img">
           <div class="persona-info">
             <span class="persona-name">Abhimanyu Saxena</span>
             <span class="persona-role">Co-founder</span>
           </div>
         </button>
         <button class="persona-btn" data-persona="kshitij" id="btn-kshitij">
-          <span class="persona-avatar" style="background:#d97706;">KM</span>
+          <img src="images/kshitij.png" alt="Kshitij Mishra" class="persona-avatar-img">
           <div class="persona-info">
             <span class="persona-name">Kshitij Mishra</span>
             <span class="persona-role">Head of Instructors</span>
@@ -41,20 +73,20 @@
         </button>
       </nav>
       <div class="sidebar-footer">
-        <p>Built for Scaler Academy</p>
+        <p>Prompt Engineering Project</p>
       </div>
     </aside>
 
-    <main class="chat-main">
+    <main class="chat-main" id="chat-main">
       <header class="chat-header" id="chat-header">
         <button class="menu-btn" id="menu-btn" aria-label="Toggle menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/>
             <line x1="3" y1="12" x2="21" y2="12"/>
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <span class="header-avatar" id="header-avatar" style="background:#2563eb;">AS</span>
+        <img src="images/anshuman.png" alt="" class="header-avatar-img" id="header-avatar-img">
         <div class="header-info">
           <span class="header-name" id="header-name">Anshuman Singh</span>
           <span class="header-role" id="header-role">Co-founder, Scaler & InterviewBit</span>
@@ -72,7 +104,7 @@
             rows="1"
           ></textarea>
           <button class="send-btn" id="send-btn" aria-label="Send message">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
           </button>

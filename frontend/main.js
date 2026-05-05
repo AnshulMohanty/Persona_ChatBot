@@ -18,9 +18,9 @@ const landingScreen = document.getElementById('landing-screen');
 const chatMain = document.getElementById('chat-main');
 const landingCards = document.querySelectorAll('.landing-persona-card');
 
-// vite build ke time VITE_API_URL set karna, warna local proxy use hoga
-const API_BASE = import.meta.env.VITE_API_URL || '';
-const API_URL = `${API_BASE}/api/chat`;
+const DEFAULT_RENDER_FRONTEND_HOST = 'persona-chatbot-1-3bpy.onrender.com';
+const DEFAULT_RENDER_API_BASE = 'https://persona-chatbot-fak2.onrender.com';
+const API_URLS = getApiUrls();
 
 function init() {
   chatMain.style.display = 'none';
@@ -149,20 +149,14 @@ async function handleSend() {
   showTypingIndicator();
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        persona: currentPersona,
-        messages: conversationHistory
-      })
+    const data = await sendChatRequest({
+      persona: currentPersona,
+      messages: conversationHistory
     });
-
-    const data = await res.json();
     hideTypingIndicator();
 
-    if (!res.ok) {
-      appendMessage('bot', data.error || 'Something went wrong. Please try again.', true);
+    if (data.error) {
+      appendMessage('bot', data.error, true);
     } else {
       conversationHistory.push({ role: 'model', content: data.reply });
       appendMessage('bot', data.reply);
@@ -229,6 +223,67 @@ function escapeHtml(text) {
   const d = document.createElement('div');
   d.textContent = text;
   return d.innerHTML;
+}
+
+function getApiUrls() {
+  const candidates = [
+    normalizeApiBase(import.meta.env.VITE_API_URL),
+    normalizeApiBase(window.PERSONA_API_URL),
+    window.location.origin
+  ];
+
+  if (window.location.hostname === DEFAULT_RENDER_FRONTEND_HOST) {
+    candidates.push(DEFAULT_RENDER_API_BASE);
+  }
+
+  return [...new Set(candidates.filter(Boolean))].map(base => new URL('/api/chat', base).toString());
+}
+
+function normalizeApiBase(base) {
+  if (!base || typeof base !== 'string') return '';
+
+  const trimmed = base.trim().replace(/\/+$/, '');
+  if (!trimmed) return '';
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^[\w.-]+\.[a-z]{2,}$/i.test(trimmed)) return `https://${trimmed}`;
+  if (trimmed.startsWith('/')) return new URL(trimmed, window.location.origin).origin;
+
+  return '';
+}
+
+async function sendChatRequest(payload) {
+  let lastError = null;
+
+  for (const url of API_URLS) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      const isJson = contentType.includes('application/json');
+      const data = isJson ? await res.json() : null;
+
+      if (res.ok) {
+        return data || { reply: '' };
+      }
+
+      if (isJson && data?.error) {
+        return { error: data.error };
+      }
+
+      lastError = new Error(`Unexpected response from ${url}: ${res.status}`);
+      console.warn(lastError.message);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Chat request failed for ${url}`, err);
+    }
+  }
+
+  throw lastError || new Error('Unable to reach the server.');
 }
 
 init();

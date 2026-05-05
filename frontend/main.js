@@ -20,6 +20,7 @@ const landingCards = document.querySelectorAll('.landing-persona-card');
 
 const DEFAULT_RENDER_FRONTEND_HOST = 'persona-chatbot-1-3bpy.onrender.com';
 const DEFAULT_RENDER_API_BASE = 'https://persona-chatbot-fak2.onrender.com';
+const REQUEST_TIMEOUT_MS = 20000;
 const API_URLS = getApiUrls();
 
 function init() {
@@ -228,12 +229,13 @@ function escapeHtml(text) {
 function getApiUrls() {
   const candidates = [
     normalizeApiBase(import.meta.env.VITE_API_URL),
-    normalizeApiBase(window.PERSONA_API_URL),
-    window.location.origin
+    normalizeApiBase(window.PERSONA_API_URL)
   ];
 
   if (window.location.hostname === DEFAULT_RENDER_FRONTEND_HOST) {
     candidates.push(DEFAULT_RENDER_API_BASE);
+  } else {
+    candidates.push(window.location.origin);
   }
 
   return [...new Set(candidates.filter(Boolean))].map(base => new URL('/api/chat', base).toString());
@@ -257,17 +259,22 @@ async function sendChatRequest(payload) {
 
   for (const url of API_URLS) {
     try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      window.clearTimeout(timeoutId);
 
       const contentType = res.headers.get('content-type') || '';
       const isJson = contentType.includes('application/json');
       const data = isJson ? await res.json() : null;
 
-      if (res.ok) {
+      if (res.ok && isJson && typeof data?.reply === 'string') {
         return data || { reply: '' };
       }
 

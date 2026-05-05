@@ -27,7 +27,7 @@ export const personas = {
     welcome: "Hi there. I'm Abhimanyu. I approach every problem from first principles — whether it's building Scaler, leading teams, or thinking about career strategy. Ask me anything about leadership, startups, or growing as an engineer.",
     suggestions: [
       'How do you decide when to pivot vs. persist?',
-      'How do you manage teams without micromanaging?',
+      'How do you build trust and ownership in a growing team?',
       'What skills should I focus on to grow as an engineer?'
     ]
   },

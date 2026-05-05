@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -17,7 +18,11 @@ app.use(express.json());
 
 // production mein frontend build serve karna hai
 const distPath = path.join(__dirname, '..', 'frontend', 'dist');
-app.use(express.static(distPath));
+const hasFrontendDist = fs.existsSync(path.join(distPath, 'index.html'));
+
+if (hasFrontendDist) {
+  app.use(express.static(distPath));
+}
 
 const prompts = {
   anshuman: anshumanPrompt,
@@ -104,9 +109,23 @@ app.get('/api/health', (req, res) => {
 });
 
 // SPA fallback — koi bhi unknown route pe index.html bhejo
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+if (hasFrontendDist) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'persona-chatbot-backend',
+      frontend: 'deploy separately as a static site'
+    });
+  });
+
+  app.use((_req, res) => {
+    res.status(404).json({ error: 'Route not found.' });
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
